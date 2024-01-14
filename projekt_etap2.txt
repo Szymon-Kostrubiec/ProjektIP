@@ -1,0 +1,35 @@
+Szymon Kostrubiec - sterowanie automatyczą szybą samochodową
+
+Skład grupy:
+Szymon Kostrubiec
+
+Opis problemu:
+Układ sterujący szybą elektryczną w samochodzie. Porozumiewa się z krańcówkami oraz steruje silnikiem. Reaguje na przyciski z rozróżnieniem poziomu nacisku. Krótkie naciśnięcie przycisku powoduje działanie szyby tylko na czas przyciskania. Dłuższe naciśnięcie powoduje pełne podniesienie/opuszczenie szyby. Silnik może wskazać wykrycie dużego oporu, co sugeruje że coś przeszkada szybie - wówczas silnik zostaje wyłączony.
+
+
+Aktorzy:
+- Przyciski sterujące podnoszeniem szyby, z rozróżnieniem między poziomami nacisku. 
+- Sterownik silnika - zarządza podnoszeniem i odpuszczaniem, reaguje na opór (gdy coś znajdzie się na drodze szyby). Otrzymuje informacje od przycisków, krańcówek oraz silnika.
+- Krańcówka otwarcia/zamknięcia
+
+Obiekty:
+- Silnik (włączony, wyłączony, napotkał zbyt duży opór) - przyjmuje polecenie zadanej szybkości i działa na szybę.
+- Szyba (poziom otwarcia 0-100%) - reaguje na działanie silnika. Wizualizuje szybę poprzez proste okno ncurses.
+
+Współbieżność:
+Wszystkie 5 procesów komunikuje się poprzez pamięć współdzieloną, która jest chroniona przez semafor. Sekcja krytyczna obejmuje odczyt i zapis do pamięci.
+Dostęp do niej jest możliwy tylko dla jednego procesu naraz.
+Proces główny inicjalizuje semafor w zablokowanym stanie, inicjalizuje pamięć współdzieloną i uwalnia dostęp do zasobów.
+
+Dwa procesy (silnik i sterownik) komunikują się również poprzez sygnał SIGUSR1. Otrzymujący sterownik ustawia flagę, która posiada kwalifikator volatile.
+
+Algorytm:
+1. Przyciski umożliwiają naciśnięcie przycisku w dwóch poziomach: automatycznym i manualnym.
+2a. Jeśli jest to tryb manualny, to sterownik uruchamia silnik na czas wciśnięcia przycisku
+2b. Jeśli jest to tryb automatyczny, to sterownik uruchamia silnik do momentu wciśnięcia krańcówki lub naciśnięcia przycisku w drugą stronę.
+3. Szyba podnosi / opuszcza się
+4. Krańcówki zwracają odpwiednie wartości
+
+Obsługa:
+Dodatkowo, program sterownik wymaga od użytkowników zalogowania. Hasło jest hashowane z losowym saltem. Program posiada również pomocniczą funkcję generacji pliku z hasłem.
+

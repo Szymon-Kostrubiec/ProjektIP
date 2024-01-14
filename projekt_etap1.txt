@@ -1,0 +1,17 @@
+Szymon Kostrubiec - sterowanie automatyczą szybą samochodową
+
+Skład grupy:
+Szymon Kostrubiec
+
+Opis problemu:
+Układ sterujący szybą elektryczną w samochodzie. Porozumiewa się z krańcówkami oraz steruje silnikiem. Reaguje na przyciski z rozróżnieniem poziomu nacisku. Krótkie naciśnięcie przycisku powoduje działanie szyby tylko na czas przyciskania. Dłuższe naciśnięcie powoduje pełne podniesienie/opuszczenie szyby. Silnik może wskazać wykrycie dużego oporu, co sugeruje że coś przeszkada szybie - wówczas silnik zostaje wyłączony.
+
+
+Aktorzy:
+- Przyciski sterujące podnoszeniem szyby, z rozróżnieniem między poziomami nacisku. 
+- Sterownik silnika - zarządza podnoszeniem i odpuszczaniem, reaguje na opór (gdy coś znajdzie się na drodze szyby). Otrzymuje informacje od przycisków, krańcówek oraz silnika.
+- Krańcówka otwarcia/zamknięcia
+
+Obiekty:
+- Silnik (włączony, wyłączony, napotkał zbyt duży opór) - przyjmuje polecenie zadanej szybkości
+- Szyba (poziom otwarcia 0-100%) - reaguje na działanie silnika
