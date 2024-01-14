@@ -58,14 +58,13 @@ int main(int argc, char *argv[]) {
     _exit(EXIT_FAILURE);
   }
 
-  // todo: turned off for debugging
-
   // check passwords
-  // if (not check_password()) {
-  //   return EXIT_FAILURE;
-  // } else {
-  //   printf("Authenticated. Welcome\n");
-  // }
+  if (not check_password()) {
+    fprintf(stderr, "Password incorrect. Terminating...\n");
+    return EXIT_FAILURE;
+  } else {
+    printf("Authenticated. Welcome\n");
+  }
 
   // initialize shared memory
 
@@ -133,24 +132,24 @@ int main(int argc, char *argv[]) {
     }
 
     sem_wait(sem_descriptor);
+
+    // the user may force the motor to operate, no matter the state of the
+    // window!
+
+    // turn off autoopen/autoclose
+    if (shared_memory->krancowka_min or collision) {
+      shared_memory->autootwieranie = false;
+    }
+    if (shared_memory->krancowka_max or collision) {
+      shared_memory->autozamykanie = false;
+    }
+
     if (collision) {
       collision = false;
       shared_memory->silnik = 0;
 
       printf("Object blocking the window has been acknowledged by the control "
              "unit\n");
-    }
-
-    // the user may force the motor to operate, no matter the state of the
-    // window!
-
-    printf("Szyba: %f", shared_memory->polozenie_szyby);
-    // turn off autoopen/autoclose
-    if (shared_memory->krancowka_min) {
-      shared_memory->autootwieranie = false;
-    }
-    if (shared_memory->krancowka_max) {
-      shared_memory->autozamykanie = false;
     }
 
     // if pressed to cancel
@@ -164,17 +163,23 @@ int main(int argc, char *argv[]) {
     }
 
     if (shared_memory->przycisk_gora) {
-      shared_memory->silnik = 5;
+      shared_memory->silnik = 40;
+      shared_memory->przycisk_gora = false;
+      printf("Przycisk góra, położenie szyby: %f \n",
+             shared_memory->polozenie_szyby);
     } else if (shared_memory->przycisk_dol) {
-      shared_memory->silnik = -5;
+      shared_memory->silnik = -40;
+      shared_memory->przycisk_dol = false;
+      printf("Przycisk dół, położenie szyby: %f \n",
+             shared_memory->polozenie_szyby);
     }
 
     if (shared_memory->autozamykanie) {
-      shared_memory->silnik = 10;
+      shared_memory->silnik = 0.1;
     }
 
     if (shared_memory->autootwieranie) {
-      shared_memory->silnik = -10;
+      shared_memory->silnik = -0.1;
     }
 
     sem_post(sem_descriptor);

@@ -37,6 +37,13 @@ int main() {
 
   SharedMemory_t *shared_memory = attach_to_shared_memory();
   sem_t *sem_mem = get_semaphore();
+
+  if (not shared_memory) {
+    exit(EXIT_FAILURE);
+  }
+  if (not sem_mem) {
+    exit(EXIT_FAILURE);
+  }
   enable_raw_mode();
 
   printf("To quit, press q lub Ctrl-C\n");
@@ -66,14 +73,20 @@ int main() {
       printf("Pressed: %c", c);
       sem_wait(sem_mem);
 
+      // a program may sometimes enter the critical section more than once!
+
       if (c == 'w') {
         shared_memory->autozamykanie = true;
       }
       if (c == 's') {
         shared_memory->autootwieranie = true;
       }
-      shared_memory->przycisk_gora = (c == 'e');
-      shared_memory->przycisk_dol = (c == 'd');
+      if (c == 'e') {
+        shared_memory->przycisk_gora = true;
+      }
+      if (c == 'd') {
+        shared_memory->przycisk_dol = true;
+      }
 
       sem_post(sem_mem);
     }

@@ -1,3 +1,4 @@
+#include <iso646.h>
 #include <ncurses.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -21,6 +22,13 @@ int main() {
   SharedMemory_t *shared_memory = attach_to_shared_memory();
   sem_t *sem_mem = get_semaphore();
 
+  if (not shared_memory) {
+    exit(EXIT_FAILURE);
+  }
+  if (not sem_mem) {
+    exit(EXIT_FAILURE);
+  }
+
   if (signal(SIGINT, &sigint_handler) == SIG_ERR) {
     perror("Signal sigusr1");
     exit(EXIT_FAILURE);
@@ -29,6 +37,7 @@ int main() {
   initscr();
 
   while (true) {
+    clear();
     if (time_to_quit)
       break;
 
@@ -39,7 +48,7 @@ int main() {
       shared_memory->polozenie_szyby = 100;
     }
 
-    const int wysokosc_okna = (int)(shared_memory->polozenie_szyby / 2);
+    const int wysokosc_okna = (int)(shared_memory->polozenie_szyby / 2) + 1;
     sem_post(sem_mem);
 
     // creating a window
@@ -51,6 +60,7 @@ int main() {
 
     // move and print in window
     mvwprintw(win, 0, 1, "Szyba");
+    mvwprintw(win, 1, 1, "Wysokosc okna: %d", wysokosc_okna);
 
     // refreshing the window
     wrefresh(win);
